@@ -38,23 +38,28 @@ public class BookingSteps {
 
     @When("User enters {string}")
     public void userEntersHotelName(String inputDestination) {
-        String hotelName = "Hilton Hurghada Plaza Hotel";
-        String inputDestinationXpath = String.format("//input[@name='ss']", inputDestination);
-        driver.findElement(By.xpath(inputDestinationXpath)).sendKeys(hotelName);
+        String inputDestinationXpath = "//input[@name='ss']";
+        driver.findElement(By.xpath(inputDestinationXpath)).sendKeys(inputDestination);
     }
 
     @And("User clicks on the Search button")
     public void userClicksOnTheButton() {
-        String searchButtonXpath = "//button[@type ='submit']";
-        driver.findElement(By.xpath(searchButtonXpath)).click();
+        try {
+            String searchButtonXpath = "//button[@type ='submit']";
+            driver.findElement(By.xpath(searchButtonXpath)).click();
+        } catch (org.openqa.selenium.ElementClickInterceptedException e) {
+            String inputXpath = "//input[@name='ss']";
+            driver.findElement(By.xpath(inputXpath)).click();
+            String searchButtonXpath = "//button[@type ='submit']";
+            driver.findElement(By.xpath(searchButtonXpath)).click();
+        }
     }
 
     @Then("The page shows {string} and its rating")
-    public void thePageShowsHotelNameAndItsRating(String hotelNameOnPage) {
+    public void thePageShowsHotelNameAndItsRating(String expectedResult) {
         String hotelNameOnPageXpath = "//div[@data-testid = 'title' and contains(.,'Hilton Hurghada')]";
         String actualResult = driver.findElement(By.xpath(hotelNameOnPageXpath)).getText();
-        String expectedResult = "Hilton Hurghada Plaza Hotel";
-        Assert.assertEquals(actualResult, expectedResult, String.format("Hotel names are not the same", hotelNameOnPage));
+        Assert.assertEquals(actualResult, expectedResult, "Hotel names are not the same");
     }
 
 
@@ -62,6 +67,6 @@ public class BookingSteps {
     public void thePageShowsRating(String ratingOnPage) {
         String ratingOnPageXpath = "//ancestor::div[@data-testid='property-card' and contains(.,'Hurghada Plaza')]//div[contains(@aria-label,'Scored')]";
         String actualResult = driver.findElement(By.xpath(ratingOnPageXpath)).getText();
-        Assert.assertEquals(actualResult, ratingOnPage, String.format("The rating does not meet expectations", ratingOnPage));
+        Assert.assertEquals(actualResult, ratingOnPage, "The rating does not meet expectations");
     }
 }
